@@ -33,18 +33,20 @@ This project is a lightweight personal TODO application designed to demonstrate:
 
 ## 🏗️ Architecture
 
+```text
 src/todo_app/
-├── domain/ # Pure business logic, independent of frameworks
-│ ├── models.py
-│ ├── repositories.py
-│ ├── services.py
-├── infrastructure/ # DB engine, ORM models, SQLAlchemy repository
-│ ├── db.py
-│ ├── models.py
-│ ├── repositories.py
-├── ui/ # Streamlit UI layer (no business logic)
-│ ├── streamlit_app.py
-│ ├── helpers.py
+├── domain/          # Pure business logic, independent of frameworks
+│   ├── models.py
+│   ├── repositories.py
+│   ├── services.py
+├── infrastructure/  # DB engine, ORM models, SQLAlchemy repository
+│   ├── db.py
+│   ├── models.py
+│   ├── repositories.py
+├── ui/              # Streamlit UI layer (no business logic)
+│   ├── streamlit_app.py
+│   ├── helpers.py
+```
 
 ### Domain layer
 Defines the `TodoItem` entity, enums, and business logic.  
