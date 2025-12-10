@@ -1,77 +1,174 @@
 # TODO App
 
-Simple local TODO / checklist app built with:
+A clean, testable, local TODO / checklist application built in under 60 minutes,
+following solid engineering principles and a layered architecture.
 
-- Python 3.12
-- Streamlit (UI)
-- SQLite + SQLAlchemy (persistence)
-- pytest (tests)
-- ruff + black (lint/format)
-- GitHub Actions (CI)
+## 🚀 Project Overview
 
-## Installation
+This project is a lightweight personal TODO application designed to demonstrate:
 
-Create and activate a virtual environment, then install the package:
+- Clean modular architecture (domain → infrastructure → UI)
+- Strong typing and documentation standards
+- Testability and CI integration
+- Use of modern Python tooling (ruff, black, mypy, pytest)
+- A functional UI built with Streamlit
+
+## ✨ Features
+
+- Create TODO items with:
+  - Title and description
+  - Optional due date
+  - Optional priority (Low / Medium / High)
+  - Optional list of tags
+- Mark items done/undone
+- Edit existing items inline
+- Filters:
+  - Status (All / Pending / Done)
+  - Priority
+  - "Due today or overdue"
+- Persistent storage with SQLite + SQLAlchemy
+- Automatic schema “migration” for new columns
+- Full test suite for domain logic and persistence
+- CI pipeline running ruff, black, mypy, and pytest
+
+## 🏗️ Architecture
+
+src/todo_app/
+├── domain/ # Pure business logic, independent of frameworks
+│ ├── models.py
+│ ├── repositories.py
+│ ├── services.py
+├── infrastructure/ # DB engine, ORM models, SQLAlchemy repository
+│ ├── db.py
+│ ├── models.py
+│ ├── repositories.py
+├── ui/ # Streamlit UI layer (no business logic)
+│ ├── streamlit_app.py
+│ ├── helpers.py
+
+### Domain layer
+Defines the `TodoItem` entity, enums, and business logic.  
+No reference to SQLAlchemy, Streamlit, or persistence concerns.
+
+### Infrastructure layer
+SQLAlchemy ORM models and the repository implementation.  
+Lightweight migration inside `init_db()` ensures schema stays up-to-date.
+
+### UI layer
+Streamlit app calling domain services and repository methods.  
+Presents forms, filtering UI, and edit widgets.
+
+## 🔧 Installation
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate  # on Windows: .venv\Scripts\activate
+source .venv/bin/activate     # Windows: .venv\Scripts\activate
 pip install --upgrade pip
 pip install -e .[dev]
 ```
 
-## Running the App
-
-From the project root:
+## ▶️ Running the App
 
 ```bash
 streamlit run src/todo_app/ui/streamlit_app.py
 ```
 
-This will create a `todo.db` SQLite file in the project directory.
+A todo.db file will be created automatically on first launch.
 
-## Linting and Formatting
-
-Run black (format):
-
-```bash
-black src tests
-```
-
-Or to just check formatting without modifying files:
-
-```bash
-black --check src tests
-```
-
-Run ruff (lint):
-
-```bash
-ruff check src tests
-```
-
-## Type checking (mypy)
-
-Run mypy over the source and tests:
-
-```bash
-mypy src tests
-```
-
-# Tests
-
-Run the test suite with:
+## 🧪 Running Tests
 
 ```bash
 pytest
 ```
 
-## CI
+Tests include:
 
-A GitHub Actions workflow (`.github/workflows/CI.yml`) is provided. It:
+- Domain logic tests using an in-memory repository
+- SQLAlchemy repository tests using a temporary SQLite DB
 
-- Sets up Python 3.12
-- Installs dependencies (pip install -e .[dev])
-- Runs ruff check
-- Runs black --check
-- Runs pytest
+## 🧹 Linting & Formatting
+
+Ruff (linting)
+
+```bash
+ruff check src tests
+```
+
+Black (formatting)
+
+```bash
+black src tests
+```
+
+Check only:
+
+```bash
+black --check src tests
+```
+
+## 🔍 Static Type Checking (mypy)
+
+```bash
+mypy src tests
+```
+
+## 🔄 Running CI Locally
+
+The CI pipeline (GitHub Actions) runs:
+
+- ruff
+- black --check
+- mypy
+- pytest
+
+Reproduce locally:
+
+```bash
+ruff check src tests
+black --check src tests
+mypy src tests
+pytest
+```
+## 📦 CI/CD
+
+GitHub Actions workflow located at:
+
+```
+.github/workflows/CI.yml
+```
+
+It automatically runs on each push or pull request.
+
+## 📝 Validation Checklist Before Packaging
+
+Manual pre-submission checks:
+
+```bash
+ruff check src tests
+black --check src tests
+mypy src tests
+pytest
+streamlit run src/todo_app/ui/streamlit_app.py
+```
+
+Then validate UI manually:
+
+1. Create a TODO with title, description, priority, due date, tags.
+2. Confirm it appears in the list.
+3. Toggle DONE/UNDONE.
+4. Edit the TODO and confirm changes persist.
+5. Test filters:
+   - Status filter (Pending / Done / All)
+   - Priority filter
+   - Due today/overdue
+6. Restart the app — data should still be present in todo.db.
+
+If all steps pass, the submission is ready.
+
+
+
+Priority filter
+
+Due today/overdue
+
+Restart the app — data should still be present in todo.db.

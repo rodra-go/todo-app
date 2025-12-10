@@ -8,6 +8,11 @@ from todo_app.domain.models import Priority, Status, TodoItem
 from todo_app.domain.services import create_todo, list_todos, toggle_done, update_todo
 from todo_app.infrastructure.db import get_session_factory, init_db
 from todo_app.infrastructure.repositories import SqlAlchemyTodoRepository
+from todo_app.ui.helpers import (
+    parse_tags,
+    priority_enum_to_label,
+    priority_label_to_enum,
+)
 
 
 def get_repo() -> SqlAlchemyTodoRepository:
@@ -20,53 +25,6 @@ def get_repo() -> SqlAlchemyTodoRepository:
         session_factory = get_session_factory()
         st.session_state["todo_repo"] = SqlAlchemyTodoRepository(session_factory)
     return st.session_state["todo_repo"]
-
-
-def _priority_label_to_enum(label: str) -> Priority | None:
-    """Convert a human-friendly priority label into a Priority enum.
-
-    Args:
-        label: Label selected in the UI.
-
-    Returns:
-        Priority enum instance or None if label represents 'All' or 'None'.
-    """
-    mapping: dict[str, Priority] = {
-        "Low": Priority.LOW,
-        "Medium": Priority.MEDIUM,
-        "High": Priority.HIGH,
-    }
-    return mapping.get(label)
-
-
-def _priority_enum_to_label(priority: Priority | None) -> str:
-    """Convert a Priority enum to a UI label.
-
-    Args:
-        priority: Priority enum or None.
-
-    Returns:
-        Readable label used in UI controls.
-    """
-    if priority is None:
-        return "None"
-    if priority == Priority.LOW:
-        return "Low"
-    if priority == Priority.MEDIUM:
-        return "Medium"
-    return "High"
-
-
-def _parse_tags(raw: str) -> list[str]:
-    """Parse a comma-separated tag string into a list of tags.
-
-    Args:
-        raw: Raw string from the UI.
-
-    Returns:
-        List of cleaned tags.
-    """
-    return [t.strip() for t in raw.split(",") if t.strip()]
 
 
 def render_create_form() -> None:
@@ -86,7 +44,7 @@ def render_create_form() -> None:
             options=["Medium", "Low", "High"],
             index=0,
         )
-        priority = _priority_label_to_enum(priority_label)
+        priority = priority_label_to_enum(priority_label)
 
         tags_raw: str = st.text_input("Tags (comma separated)", "")
 
@@ -102,7 +60,7 @@ def render_create_form() -> None:
                     description=description,
                     due_date=due_date_value,
                     priority=priority,
-                    tags=_parse_tags(tags_raw),
+                    tags=parse_tags(tags_raw),
                 )
                 st.success("TODO created.")
 
@@ -140,7 +98,7 @@ def render_filters() -> tuple[Status | None, Priority | None, bool]:
         if priority_option == "All":
             priority_filter = None
         else:
-            priority_filter = _priority_label_to_enum(priority_option)
+            priority_filter = priority_label_to_enum(priority_option)
 
     with cols[2]:
         due_today_or_overdue = st.checkbox("Due today or overdue", value=False)
@@ -225,14 +183,14 @@ def _render_edit_form(item: TodoItem) -> None:
                     "Low",
                     "Medium",
                     "High",
-                ].index(_priority_enum_to_label(item.priority)),
+                ].index(priority_enum_to_label(item.priority)),
                 key=f"edit_priority_{item.id}",
             )
             priority: Priority | None
             if priority_label == "None":
                 priority = None
             else:
-                priority = _priority_label_to_enum(priority_label)
+                priority = priority_label_to_enum(priority_label)
 
             tags_raw = st.text_input(
                 "Tags (comma separated)",
@@ -253,7 +211,7 @@ def _render_edit_form(item: TodoItem) -> None:
                         description=description,
                         due_date=due_date_value,
                         priority=priority,
-                        tags=_parse_tags(tags_raw),
+                        tags=parse_tags(tags_raw),
                     )
                     if updated is not None:
                         st.success("TODO updated.")
@@ -288,7 +246,7 @@ def _render_todo_row(item: TodoItem) -> None:
         if item.due_date:
             meta_parts.append(f"Due: {item.due_date.isoformat()}")
         if item.priority:
-            meta_parts.append(f"Priority: {_priority_enum_to_label(item.priority)}")
+            meta_parts.append(f"Priority: {priority_enum_to_label(item.priority)}")
         if item.tags:
             meta_parts.append(f"Tags: {', '.join(item.tags)}")
 
