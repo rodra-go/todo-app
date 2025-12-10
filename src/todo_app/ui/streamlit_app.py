@@ -35,9 +35,9 @@ def render_create_form() -> None:
         description: str = st.text_area("Description", "")
 
         use_due_date: bool = st.checkbox("Set due date?", value=False)
-        due_date_value: date | None = None
-        if use_due_date:
-            due_date_value = st.date_input("Due date", value=date.today())
+        # Always render the date input to avoid conditional widget creation issues
+        raw_due_date: date = st.date_input("Due date", value=date.today())
+        due_date_value: date | None = raw_due_date if use_due_date else None
 
         priority_label: str = st.selectbox(
             "Priority",
@@ -165,15 +165,14 @@ def _render_edit_form(item: TodoItem) -> None:
                 value=item.due_date is not None,
                 key=f"edit_due_checkbox_{item.id}",
             )
-            due_date_value: date | None = item.due_date
-            if has_due:
-                due_date_value = st.date_input(
-                    "Due date",
-                    value=item.due_date or date.today(),
-                    key=f"edit_due_date_{item.id}",
-                )
-            else:
-                due_date_value = None
+
+            # Always render the date input; use its value only if has_due is True
+            raw_due_date: date = st.date_input(
+                "Due date",
+                value=item.due_date or date.today(),
+                key=f"edit_due_date_{item.id}",
+            )
+            due_date_value: date | None = raw_due_date if has_due else None
 
             priority_label = st.selectbox(
                 "Priority",
