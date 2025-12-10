@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Optional, Protocol, Sequence
+from collections.abc import Sequence
+from typing import Protocol
 
 from .models import Status, TodoItem
 
@@ -18,7 +19,7 @@ class TodoRepository(Protocol):
         """Return all TODO items."""
 
     @abstractmethod
-    def get(self, item_id: int) -> Optional[TodoItem]:
+    def get(self, item_id: int) -> TodoItem | None:
         """Retrieve a TODO item by its id."""
 
     @abstractmethod
@@ -30,5 +31,7 @@ class TodoRepository(Protocol):
         """Delete a TODO item by its id."""
 
     @abstractmethod
-    def set_status(self, item_id: int, status: Status) -> Optional[TodoItem]:
-        """Set the status of a TODO item and return the updated item, or None if not found."""
+    def set_status(self, item_id: int, status: Status) -> TodoItem | None:
+        """Set the status of a TODO item and return the updated item,
+        or None if not found.
+        """

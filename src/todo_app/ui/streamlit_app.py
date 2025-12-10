@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import date
-from typing import List, Optional
 
 import streamlit as st
 
@@ -23,7 +22,7 @@ def get_repo() -> SqlAlchemyTodoRepository:
     return st.session_state["todo_repo"]
 
 
-def _priority_label_to_enum(label: str) -> Optional[Priority]:
+def _priority_label_to_enum(label: str) -> Priority | None:
     """Convert a human-friendly priority label into a Priority enum.
 
     Args:
@@ -40,7 +39,7 @@ def _priority_label_to_enum(label: str) -> Optional[Priority]:
     return mapping.get(label)
 
 
-def _priority_enum_to_label(priority: Optional[Priority]) -> str:
+def _priority_enum_to_label(priority: Priority | None) -> str:
     """Convert a Priority enum to a UI label.
 
     Args:
@@ -58,7 +57,7 @@ def _priority_enum_to_label(priority: Optional[Priority]) -> str:
     return "High"
 
 
-def _parse_tags(raw: str) -> List[str]:
+def _parse_tags(raw: str) -> list[str]:
     """Parse a comma-separated tag string into a list of tags.
 
     Args:
@@ -78,7 +77,7 @@ def render_create_form() -> None:
         description: str = st.text_area("Description", "")
 
         use_due_date: bool = st.checkbox("Set due date?", value=False)
-        due_date_value: Optional[date] = None
+        due_date_value: date | None = None
         if use_due_date:
             due_date_value = st.date_input("Due date", value=date.today())
 
@@ -108,7 +107,7 @@ def render_create_form() -> None:
                 st.success("TODO created.")
 
 
-def render_filters() -> tuple[Optional[Status], Optional[Priority], bool]:
+def render_filters() -> tuple[Status | None, Priority | None, bool]:
     """Render filter controls and return chosen filter values.
 
     Returns:
@@ -123,7 +122,7 @@ def render_filters() -> tuple[Optional[Status], Optional[Priority], bool]:
             options=["All", "Pending", "Done"],
             index=0,
         )
-        status_filter: Optional[Status]
+        status_filter: Status | None
         if status_option == "Pending":
             status_filter = Status.PENDING
         elif status_option == "Done":
@@ -137,7 +136,7 @@ def render_filters() -> tuple[Optional[Status], Optional[Priority], bool]:
             options=["All", "Low", "Medium", "High"],
             index=0,
         )
-        priority_filter: Optional[Priority]
+        priority_filter: Priority | None
         if priority_option == "All":
             priority_filter = None
         else:
@@ -150,8 +149,8 @@ def render_filters() -> tuple[Optional[Status], Optional[Priority], bool]:
 
 
 def render_todo_list(
-    status_filter: Optional[Status],
-    priority_filter: Optional[Priority],
+    status_filter: Status | None,
+    priority_filter: Priority | None,
     due_today_or_overdue: bool,
 ) -> None:
     """Render the list of existing TODO items with toggle and edit actions.
@@ -208,7 +207,7 @@ def _render_edit_form(item: TodoItem) -> None:
                 value=item.due_date is not None,
                 key=f"edit_due_checkbox_{item.id}",
             )
-            due_date_value: Optional[date] = item.due_date
+            due_date_value: date | None = item.due_date
             if has_due:
                 due_date_value = st.date_input(
                     "Due date",
@@ -229,7 +228,7 @@ def _render_edit_form(item: TodoItem) -> None:
                 ].index(_priority_enum_to_label(item.priority)),
                 key=f"edit_priority_{item.id}",
             )
-            priority: Optional[Priority]
+            priority: Priority | None
             if priority_label == "None":
                 priority = None
             else:

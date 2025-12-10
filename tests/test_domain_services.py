@@ -1,15 +1,11 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from datetime import date, datetime, timedelta
-from typing import List, Optional, Sequence
 
 from todo_app.domain.models import Priority, Status, TodoItem
 from todo_app.domain.repositories import TodoRepository
-from todo_app.domain.services import (
-    create_todo,
-    list_todos,
-    toggle_done,
-)
+from todo_app.domain.services import create_todo, list_todos, toggle_done
 
 
 class InMemoryTodoRepository(TodoRepository):
@@ -17,7 +13,7 @@ class InMemoryTodoRepository(TodoRepository):
 
     def __init__(self) -> None:
         """Initialize an empty in-memory store."""
-        self._items: List[TodoItem] = []
+        self._items: list[TodoItem] = []
         self._next_id: int = 1
 
     def add(self, item: TodoItem) -> TodoItem:
@@ -29,7 +25,7 @@ class InMemoryTodoRepository(TodoRepository):
     def list_all(self) -> Sequence[TodoItem]:
         return list(self._items)
 
-    def get(self, item_id: int) -> Optional[TodoItem]:
+    def get(self, item_id: int) -> TodoItem | None:
         for item in self._items:
             if item.id == item_id:
                 return item
@@ -46,7 +42,7 @@ class InMemoryTodoRepository(TodoRepository):
     def delete(self, item_id: int) -> None:
         self._items = [item for item in self._items if item.id != item_id]
 
-    def set_status(self, item_id: int, status: Status) -> Optional[TodoItem]:
+    def set_status(self, item_id: int, status: Status) -> TodoItem | None:
         item = self.get(item_id)
         if item is None:
             return None
@@ -129,3 +125,17 @@ def test_due_today_or_overdue_filter() -> None:
     assert "Due today" in titles
     assert "Future" not in titles
     assert "No due date" not in titles
+
+
+def test_priority_filter() -> None:
+    """Filtering by priority should return only items with that priority."""
+    repo = InMemoryTodoRepository()
+
+    create_todo(repo=repo, title="Low task", priority=Priority.LOW)
+    create_todo(repo=repo, title="Medium task", priority=Priority.MEDIUM)
+    create_todo(repo=repo, title="High task", priority=Priority.HIGH)
+    create_todo(repo=repo, title="No priority", priority=None)
+
+    high_only = list_todos(repo=repo, priority=Priority.HIGH)
+    titles = {item.title for item in high_only}
+    assert titles == {"High task"}

@@ -1,20 +1,32 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "todo-app"
 version = "0.1.0"
-description = "Simple TODO app with Streamlit and SQLite"
+description = "Simple local TODO app with Streamlit and SQLite"
 requires-python = ">=3.12"
 dependencies = [
-  "streamlit>=1.40.0",
-  "sqlalchemy>=2.0.0",
-  "pytest>=8.0.0",
+  "streamlit>=1.37.0",
+  "sqlalchemy>=2.0",
+  "pydantic>=2.0",
+]
+readme = "README.md"
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
   "ruff>=0.6.0",
-  "black>=24.0.0",
-  "mypy>=1.10.0",
+  "black>=24.0",
+  "mypy>=1.10",
 ]
 
-[build-system]
-requires = ["setuptools>=68.0.0", "wheel"]
-build-backend = "setuptools.build_meta"
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.black]
 line-length = 88
@@ -23,12 +35,12 @@ target-version = ["py312"]
 [tool.ruff]
 line-length = 88
 target-version = "py312"
-select = ["E", "F", "I"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+ignore = []
 
 [tool.mypy]
 python_version = "3.12"
-strict = false
 ignore_missing_imports = true
-
-[tool.pytest.ini_options]
-pythonpath = ["src"]
+strict = false

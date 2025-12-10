@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from datetime import date, datetime
-from typing import Optional, Sequence
 
 from .models import Priority, Status, TodoItem
 from .repositories import TodoRepository
@@ -10,10 +10,10 @@ from .repositories import TodoRepository
 def create_todo(
     repo: TodoRepository,
     title: str,
-    description: Optional[str] = None,
-    due_date: Optional[date] = None,
-    priority: Optional[Priority] = None,
-    tags: Optional[Sequence[str]] = None,
+    description: str | None = None,
+    due_date: date | None = None,
+    priority: Priority | None = None,
+    tags: Sequence[str] | None = None,
 ) -> TodoItem:
     """Create and persist a new TODO item.
 
@@ -46,10 +46,10 @@ def create_todo(
 
 def list_todos(
     repo: TodoRepository,
-    status: Optional[Status] = None,
-    priority: Optional[Priority] = None,
+    status: Status | None = None,
+    priority: Priority | None = None,
     due_today_or_overdue: bool = False,
-    reference_date: Optional[date] = None,
+    reference_date: date | None = None,
 ) -> Sequence[TodoItem]:
     """List TODO items with optional filtering.
 
@@ -84,7 +84,7 @@ def list_todos(
     return items
 
 
-def toggle_done(repo: TodoRepository, item_id: int) -> Optional[TodoItem]:
+def toggle_done(repo: TodoRepository, item_id: int) -> TodoItem | None:
     """Toggle the status of a TODO item between pending and done.
 
     Args:
@@ -106,11 +106,11 @@ def update_todo(
     repo: TodoRepository,
     item_id: int,
     title: str,
-    description: Optional[str],
-    due_date: Optional[date],
-    priority: Optional[Priority],
-    tags: Optional[Sequence[str]],
-) -> Optional[TodoItem]:
+    description: str | None,
+    due_date: date | None,
+    priority: Priority | None,
+    tags: Sequence[str] | None,
+) -> TodoItem | None:
     """Update an existing TODO item.
 
     Args:

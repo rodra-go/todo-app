@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from enum import Enum, auto
-from typing import List, Optional
 
 
 class Status(Enum):
@@ -37,12 +36,12 @@ class TodoItem:
         tags: Optional list of free-form tags associated with the TODO.
     """
 
-    id: Optional[int]
+    id: int | None
     title: str
-    description: Optional[str]
+    description: str | None
     status: Status
     created_at: datetime
     updated_at: datetime
-    due_date: Optional[date] = None
-    priority: Optional[Priority] = None
-    tags: List[str] = field(default_factory=list)
+    due_date: date | None = None
+    priority: Priority | None = None
+    tags: list[str] = field(default_factory=list)

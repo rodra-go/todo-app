@@ -1,13 +1,14 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from datetime import datetime
-from typing import Optional, Sequence
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
 from todo_app.domain.models import Priority, Status, TodoItem
 from todo_app.domain.repositories import TodoRepository
+
 from .models import TodoORM
 
 
@@ -47,7 +48,7 @@ class SqlAlchemyTodoRepository(TodoRepository):
             result = session.scalars(stmt).all()
             return [self._to_domain(row) for row in result]
 
-    def get(self, item_id: int) -> Optional[TodoItem]:
+    def get(self, item_id: int) -> TodoItem | None:
         """Retrieve a TODO item by its id."""
         with self._session_factory() as session:
             orm = session.get(TodoORM, item_id)
@@ -82,7 +83,7 @@ class SqlAlchemyTodoRepository(TodoRepository):
             session.delete(orm)
             session.commit()
 
-    def set_status(self, item_id: int, status: Status) -> Optional[TodoItem]:
+    def set_status(self, item_id: int, status: Status) -> TodoItem | None:
         """Set the status of a TODO item and return the updated item."""
         with self._session_factory() as session:
             orm = session.get(TodoORM, item_id)
