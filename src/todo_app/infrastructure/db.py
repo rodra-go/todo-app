@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from typing import Callable
-
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect, text
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 
@@ -10,7 +9,7 @@ class Base(DeclarativeBase):
     """Base class for SQLAlchemy ORM models."""
 
 
-def get_engine() -> "Engine":
+def get_engine() -> Engine:
     """Create or retrieve the SQLAlchemy engine.
 
     Returns:
@@ -36,9 +35,34 @@ def get_session_factory() -> sessionmaker[Session]:
     )
 
 
+def _run_migrations(engine: Engine) -> None:
+    """Apply simple in-place migrations for the SQLite schema.
+
+    This is intentionally minimal and only handles adding new nullable
+    columns to the existing `todos` table.
+    """
+    insp = inspect(engine)
+    if not insp.has_table("todos"):
+        # Table does not exist yet; `create_all` will create it.
+        return
+
+    existing_cols = {col["name"] for col in insp.get_columns("todos")}
+
+    # We only ever ADD nullable columns so existing data stays valid.
+    with engine.begin() as conn:
+        if "due_date" not in existing_cols:
+            conn.execute(text("ALTER TABLE todos ADD COLUMN due_date DATE"))
+        if "priority" not in existing_cols:
+            conn.execute(text("ALTER TABLE todos ADD COLUMN priority VARCHAR(20)"))
+        if "tags" not in existing_cols:
+            conn.execute(text("ALTER TABLE todos ADD COLUMN tags VARCHAR(255)"))
+
+
 def init_db() -> None:
-    """Initialize the database schema if it does not exist."""
-    from . import models as orm_models  # noqa: F401  # ensure models are imported
+    """Initialize the database schema and run lightweight migrations."""
+    # Import ORM models so metadata is populated.
+    from . import models as orm_models  # noqa: F401
 
     engine = get_engine()
+    _run_migrations(engine)
     Base.metadata.create_all(bind=engine)

@@ -6,7 +6,7 @@ from typing import Optional, Sequence
 from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
-from todo_app.domain.models import Status, TodoItem
+from todo_app.domain.models import Priority, Status, TodoItem
 from todo_app.domain.repositories import TodoRepository
 from .models import TodoORM
 
@@ -31,6 +31,9 @@ class SqlAlchemyTodoRepository(TodoRepository):
                 status=item.status.name,
                 created_at=item.created_at,
                 updated_at=item.updated_at,
+                due_date=item.due_date,
+                priority=item.priority.name if item.priority is not None else None,
+                tags=",".join(item.tags) if item.tags else None,
             )
             session.add(orm)
             session.commit()
@@ -63,6 +66,9 @@ class SqlAlchemyTodoRepository(TodoRepository):
             orm.description = item.description
             orm.status = item.status.name
             orm.updated_at = datetime.utcnow()
+            orm.due_date = item.due_date
+            orm.priority = item.priority.name if item.priority is not None else None
+            orm.tags = ",".join(item.tags) if item.tags else None
             session.commit()
             session.refresh(orm)
             return self._to_domain(orm)
@@ -98,6 +104,14 @@ class SqlAlchemyTodoRepository(TodoRepository):
         Returns:
             Domain-level TodoItem.
         """
+        tags_list = []
+        if orm.tags:
+            tags_list = [t.strip() for t in orm.tags.split(",") if t.strip()]
+
+        priority_enum: Priority | None = None
+        if orm.priority:
+            priority_enum = Priority[orm.priority]
+
         return TodoItem(
             id=orm.id,
             title=orm.title,
@@ -105,4 +119,7 @@ class SqlAlchemyTodoRepository(TodoRepository):
             status=Status[orm.status],
             created_at=orm.created_at,
             updated_at=orm.updated_at,
+            due_date=orm.due_date,
+            priority=priority_enum,
+            tags=tags_list,
         )

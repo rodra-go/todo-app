@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from datetime import datetime
+from dataclasses import dataclass, field
+from datetime import date, datetime
 from enum import Enum, auto
-from typing import Optional
+from typing import List, Optional
 
 
 class Status(Enum):
@@ -11,6 +11,14 @@ class Status(Enum):
 
     PENDING = auto()
     DONE = auto()
+
+
+class Priority(Enum):
+    """Priority level of a TODO item."""
+
+    LOW = auto()
+    MEDIUM = auto()
+    HIGH = auto()
 
 
 @dataclass(slots=True)
@@ -24,6 +32,9 @@ class TodoItem:
         status: Current status of the TODO item.
         created_at: Timestamp when the item was created.
         updated_at: Timestamp when the item was last updated.
+        due_date: Optional calendar date by which the TODO should be completed.
+        priority: Optional priority level for the TODO item.
+        tags: Optional list of free-form tags associated with the TODO.
     """
 
     id: Optional[int]
@@ -32,3 +43,6 @@ class TodoItem:
     status: Status
     created_at: datetime
     updated_at: datetime
+    due_date: Optional[date] = None
+    priority: Optional[Priority] = None
+    tags: List[str] = field(default_factory=list)
