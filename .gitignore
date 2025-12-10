@@ -1,0 +1,31 @@
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+
+# Local SQLite database
+todo.db
+
+# Streamlit cache
+.streamlit/
+
+# Pytest cache
+.pytest_cache/
+
+# Mypy cache
+.mypy_cache/
+
+# Ruff cache
+.ruff_cache/
+
+# IDE / editor settings
+.vscode/
+.idea/
+
+# macOS metadata
+.DS_Store
