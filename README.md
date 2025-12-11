@@ -166,11 +166,3 @@ Then validate UI manually:
 6. Restart the app — data should still be present in todo.db.
 
 If all steps pass, the submission is ready.
-
-
-
-Priority filter
-
-Due today/overdue
-
-Restart the app — data should still be present in todo.db.
